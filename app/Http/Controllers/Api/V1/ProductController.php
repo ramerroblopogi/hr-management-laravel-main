@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Filters\V1\ProductFilter;
 use App\Http\Resources\V1\ProductResource;
+use App\Http\Requests\Api\V1\StoreProductRequest;
 use App\Models\Product;
 
 class ProductController extends APIController
@@ -33,5 +34,18 @@ class ProductController extends APIController
         }
 
         return new ProductResource($product);
+    }
+
+    /**
+     * POST /api/v1/products
+     * Validates the body with StoreProductRequest, then creates the product.
+     * Laravel answers 201 Created automatically for a newly created resource.
+     */
+    public function store(StoreProductRequest $request)
+    {
+        // mappedAttributes() converts the nested JSON into database columns
+        return new ProductResource(
+            Product::create($request->mappedAttributes())
+        );
     }
 }

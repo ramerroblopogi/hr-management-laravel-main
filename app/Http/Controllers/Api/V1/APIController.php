@@ -3,12 +3,16 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Traits\ApiResponses;
 
 /**
  * Base class for the version 1 API controllers. Shared helpers live here.
  */
 class APIController extends Controller
 {
+    // Gives every controller that extends this class the ok(), success() and error() helpers
+    use ApiResponses;
+
     /**
      * Returns true when the client asked for a relationship with ?include=...
      * Example: /products?include=author  ->  include('author') is true.

@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Api\V1;
 
+use App\Permissions\V1\Abilities;
+
 /**
  * Validates the body of PATCH /products/{product}: only the fields sent are checked.
  */

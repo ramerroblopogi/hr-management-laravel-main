@@ -75,13 +75,17 @@ class ProductController extends APIController
 
     /**
      * PATCH /api/v1/products/{product}
-     * Updates only the fields that were sent (see UpdateProductRequest).
+     * Updates only the fields that were sent, but only if the policy allows it.
      */
     public function update(UpdateProductRequest $request, Product $product)
     {
-        // mappedAttributes() returns only the keys present in the request
-        $product->update($request->mappedAttributes());
+        // Ask ProductPolicy::update() (owner, or a user holding the broader ability)
+        if ($this->isAble('update', $product)) {
+            $product->update($request->mappedAttributes());
 
-        return new ProductResource($product);
+            return new ProductResource($product);
+        }
+
+        return $this->notAuthorized('You are not authorized to update that resource.');
     }
 }

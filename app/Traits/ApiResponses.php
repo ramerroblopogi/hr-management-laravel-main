@@ -6,7 +6,7 @@ use Illuminate\Http\JsonResponse;
 
 /**
  * Reusable helpers that return JSON responses in one consistent format.
- * Any controller (or the exception handler) can pull them in with "use ApiResponses;".
+ * Any controller (or the exception handler) can pull them in with "use ApiResponses".
  */
 trait ApiResponses
 {
@@ -42,5 +42,13 @@ trait ApiResponses
             'message' => $message,
             'status'  => $statusCode,
         ], $statusCode);
+    }
+
+    /**
+     * 403 Forbidden: the user is logged in but is not allowed to do this.
+     */
+    protected function notAuthorized(string $message): JsonResponse
+    {
+        return $this->error($message, 403);
     }
 }

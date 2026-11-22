@@ -35,12 +35,13 @@ class ProductResource extends JsonResource
                         'type' => 'user',
                         'id' => $this->user_id,
                     ],
-                    // Link to the author's own endpoint
                     'links' => [
                         'self' => route('authors.show', ['author' => $this->user_id]),
                     ],
                 ],
             ],
+            // The author object, present only when requested with ?include=author
+            'includes' => new UserResource($this->whenLoaded('author')),
             'links' => [
                 'self' => route('products.show', ['product' => $this->id]),
             ],

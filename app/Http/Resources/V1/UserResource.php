@@ -25,6 +25,8 @@ class UserResource extends JsonResource
                     'updatedAt' => $this->updated_at,
                 ]),
             ],
+            // The products array, present only when requested with ?include=products
+            'includes' => ProductResource::collection($this->whenLoaded('products')),
             // Link to this user
             'links' => [
                 'self' => route('authors.show', ['author' => $this->id]),

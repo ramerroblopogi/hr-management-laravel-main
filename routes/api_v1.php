@@ -20,10 +20,10 @@ Route::middleware('auth:api')->group(function () {
         Route::post('refresh', [AuthController::class, 'refresh']);
     });
 
-    Route::apiResource('products', ProductController::class)->only(['index', 'show', 'store']);
+    Route::apiResource('products', ProductController::class)->only(['index', 'show', 'store', 'destroy']);
 
     // Authors are read only: list and show
-    Route::apiResource('authors', AuthorsController::class)->only(['index', 'show', 'store']);
+    Route::apiResource('authors', AuthorsController::class)->only(['index', 'show', 'store', 'destroy']);
 
     // Products of one user: GET /users/{user}/products
     Route::apiResource('users.products', UserProductsController::class)->only(['index']);

@@ -48,4 +48,15 @@ class ProductController extends APIController
             Product::create($request->mappedAttributes())
         );
     }
+
+    /**
+     * DELETE /api/v1/products/{product}
+     * Deletes the product. A missing product never reaches this method: Laravel answers 404.
+     */
+    public function destroy(Product $product)
+    {
+        $product->delete();
+
+        return $this->ok('Product successfully deleted');
+    }
 }

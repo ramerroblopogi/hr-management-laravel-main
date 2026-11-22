@@ -27,11 +27,18 @@ return Application::configure(basePath: dirname(__DIR__))
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // Always answer with JSON (never an HTML page) for URLs that start with api/
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*'),
         );
-    })->create();
+    })
+    ->booting(function () {
+        // Use our custom handler for every exception
+        app()->singleton(
+            \Illuminate\Contracts\Debug\ExceptionHandler::class,
+            \App\Exceptions\Handler::class
+        );
+    })
+    ->create();

@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\ProductController;
 use App\Http\Controllers\Api\V1\AuthorsController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\V1\UserProductsController;
 
 // Public routes: no token needed
 Route::prefix('auth')->group(function () {
@@ -23,4 +24,7 @@ Route::middleware('auth:api')->group(function () {
 
     // Authors are read only: list and show
     Route::apiResource('authors', AuthorsController::class)->only(['index', 'show']);
-});
+
+    // Products of one user: GET /users/{user}/products
+    Route::apiResource('users.products', UserProductsController::class)->only(['index']);
+});

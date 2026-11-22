@@ -2,9 +2,10 @@
 
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\ProductController;
-use App\Http\Controllers\Api\V1\AuthorsController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\V1\AuthorsController;
 use App\Http\Controllers\Api\V1\UserProductsController;
+use App\Http\Controllers\Api\V1\UserController;
 
 // Public routes: no token needed
 Route::prefix('auth')->group(function () {
@@ -20,21 +21,25 @@ Route::middleware('auth:api')->group(function () {
         Route::post('refresh', [AuthController::class, 'refresh']);
     });
 
+    // GET /products (list) and GET /products/{product} (one product)
     Route::apiResource('products', ProductController::class)->only(['index', 'show', 'store', 'destroy']);
-
     // PUT replaces the whole product (our own method name: replace)
     Route::put('products/{product}', [ProductController::class, 'replace']);
-
     // PATCH updates only the fields that were sent
     Route::patch('products/{product}', [ProductController::class, 'update']);
 
     // Authors are read only: list and show
     Route::apiResource('authors', AuthorsController::class)->only(['index', 'show']);
 
+    // Users (management): list, create, show and delete use the resource routes
+    Route::apiResource('users', UserController::class)->except(['update']);
+    Route::put('users/{user}', [UserController::class, 'replace']);
+    Route::patch('users/{user}', [UserController::class, 'update']);
+
     // Products of one user: GET /users/{user}/products
     Route::apiResource('users.products', UserProductsController::class)
         ->only(['index', 'store', 'destroy'])
-        ->scoped();
+        ->scoped(); // the product must belong to the user in the URL (otherwise 404)
 
     // PUT and PATCH use our own method names, so they are registered by hand
     Route::put('users/{user}/products/{product}', [UserProductsController::class, 'replace'])

@@ -22,9 +22,12 @@ Route::middleware('auth:api')->group(function () {
 
     Route::apiResource('products', ProductController::class)->only(['index', 'show', 'store', 'destroy']);
 
+    // PUT replaces the whole product (our own method name: replace)
+    Route::put('products/{product}', [ProductController::class, 'replace']);
+
     // Authors are read only: list and show
-    Route::apiResource('authors', AuthorsController::class)->only(['index', 'show', 'store', 'destroy']);
+    Route::apiResource('authors', AuthorsController::class)->only(['index', 'show']);
 
     // Products of one user: GET /users/{user}/products
     Route::apiResource('users.products', UserProductsController::class)->only(['index']);
-});
+});

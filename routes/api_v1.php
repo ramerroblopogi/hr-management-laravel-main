@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\ProductController;
+use App\Http\Controllers\Api\V1\AuthorsController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes: no token needed
@@ -19,4 +20,7 @@ Route::middleware('auth:api')->group(function () {
     });
 
     Route::apiResource('products', ProductController::class)->only(['index', 'show']);
+
+    // Authors are read only: list and show
+    Route::apiResource('authors', AuthorsController::class)->only(['index', 'show']);
 });

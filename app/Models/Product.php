@@ -16,6 +16,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['product', 'description', 'status', 'user_id'])]
 class Product extends Model
 {
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var list<string>
+     */
+    protected $fillable = [
+        'product',
+        'description',
+        'status',
+        'user_id',
+    ];
+
     // Gives the model access to factories (used by seeders and tests).
     use HasFactory;
 

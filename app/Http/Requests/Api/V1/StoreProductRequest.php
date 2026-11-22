@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Api\V1;
 
+use App\Permissions\V1\Abilities;
+
 /**
  * Validates the body of POST /products and POST /users/{user}/products.
  */
@@ -27,7 +29,7 @@ class StoreProductRequest extends BaseProductRequest
             ? 'data.relationships.user.data.id'
             : 'user';
 
-        return [
+        $rules = [
             'data' => 'required|array',
             'data.attributes' => 'required|array',
             'data.attributes.product' => 'required|string',
@@ -35,6 +37,16 @@ class StoreProductRequest extends BaseProductRequest
             'data.attributes.status' => 'required|string|in:A,C,H,X',
             $userIdAttr => 'required|integer|exists:users,id',
         ];
+
+        // A user who may only create their own products must be the author:
+        // size:5 means the id must equal 5, the logged-in user's id.
+        $user = $this->user();
+
+        if ($user->tokenCan(Abilities::CreateOwnProduct)) {
+            $rules[$userIdAttr] .= '|size:' . $user->id;
+        }
+
+        return $rules;
     }
 
     /**

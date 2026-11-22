@@ -18,5 +18,5 @@ Route::middleware('auth:api')->group(function () {
         Route::post('refresh', [AuthController::class, 'refresh']);
     });
 
-    Route::apiResource('products', ProductController::class)->only(['index']);
+    Route::apiResource('products', ProductController::class)->only(['index', 'show']);
 });

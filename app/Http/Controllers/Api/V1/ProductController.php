@@ -2,18 +2,31 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Http\Filters\V1\ProductFilter;
+use App\Models\Product;
 use App\Http\Resources\V1\ProductResource;
+use App\Http\Filters\V1\ProductFilter;
 use App\Http\Requests\Api\V1\StoreProductRequest;
 use App\Http\Requests\Api\V1\ReplaceProductRequest;
 use App\Http\Requests\Api\V1\UpdateProductRequest;
-use App\Models\Product;
 
+/**
+ * @group Products
+ *
+ * Create, read, update and delete products.
+ */
 class ProductController extends APIController
 {
     /**
-     * GET /api/v1/products
-     * Returns a paginated list (15 per page). Each product is transformed by ProductResource.
+     * List products
+     *
+     * Returns a paginated list of products. Supports filtering, sorting and including the author.
+     *
+     * @queryParam status string Filter by status. Use a comma for several. Example: A,H
+     * @queryParam product string Filter by name. Use * as a wildcard. Example: *phone*
+     * @queryParam createdAt string A date, or a range as from,to. Example: 2026-01-01,2026-12-31
+     * @queryParam sort string Sort by product, status, createdAt or updatedAt. Prefix with - for descending. Example: -createdAt
+     * @queryParam include string Include related data. Example: author
+     * @queryParam page integer The page number. Example: 1
      */
     public function index(ProductFilter $filters)
     {
@@ -39,8 +52,9 @@ class ProductController extends APIController
     }
 
     /**
-     * POST /api/v1/products
-     * Creates a product, but only if the policy allows this user to do so.
+     * Create a product
+     *
+     * Managers can assign any author. Regular users can only create products for themselves.
      */
     public function store(StoreProductRequest $request)
     {
@@ -90,7 +104,7 @@ class ProductController extends APIController
      */
     public function update(UpdateProductRequest $request, Product $product)
     {
-        // Ask ProductPolicy::update() (checks the ability stored in the token)
+        // Ask ProductPolicy::update() (owner, or a user holding the broader ability)
         if ($this->isAble('update', $product)) {
             $product->update($request->mappedAttributes());
 

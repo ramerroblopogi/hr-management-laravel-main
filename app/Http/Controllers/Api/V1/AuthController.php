@@ -10,12 +10,23 @@ use App\Traits\ApiResponses;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
+/**
+ * @group Authentication
+ *
+ * Register, log in, refresh and log out.
+ */
 class AuthController extends Controller
 {
     // Gives this controller the ok(), success() and error() response helpers
     use ApiResponses;
 
-    // User Registration: creates the account and logs the user in immediately
+    /**
+     * Register
+     *
+     * Creates the account and logs the user in immediately.
+     *
+     * @unauthenticated
+     */
     public function register(RegisterUserRequest $request)
     {
         // Create the user. The password is hashed (bcrypt) before it is stored.
@@ -31,7 +42,13 @@ class AuthController extends Controller
         return $this->ok('Registered successfully', $this->formatToken($token));
     }
 
-    // Login: checks the credentials and returns a token when they are correct
+    /**
+     * Log in
+     *
+     * Returns an access token. Send it as a Bearer token on every other request.
+     *
+     * @unauthenticated
+     */
     public function login(LoginUserRequest $request)
     {
         $credentials = $request->only('email', 'password');

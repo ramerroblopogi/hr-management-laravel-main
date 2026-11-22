@@ -24,3 +24,10 @@ Homestead.yaml
 Thumbs.db
 
 /database/*.sqlite
+
+# Generated Scribe documentation (rebuild with: php artisan scribe:generate)
+.scribe/endpoints
+.scribe/endpoints.cache
+.scribe/.filehashes
+/public/vendor/scribe
+/resources/views/scribe

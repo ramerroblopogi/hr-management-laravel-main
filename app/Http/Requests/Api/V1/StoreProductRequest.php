@@ -20,6 +20,7 @@ class StoreProductRequest extends BaseProductRequest
 
     /**
      * Validation rules for creating a product (deny by default).
+     * Null-safe so Scribe can read the rules while no user is logged in.
      */
     public function rules(): array
     {
@@ -39,11 +40,11 @@ class StoreProductRequest extends BaseProductRequest
             'data.attributes.description' => 'required|string',
             'data.attributes.status' => 'required|string|in:A,C,H,X',
             // Default: the author must be the logged-in user
-            $userIdAttr => $userRule . '|size:' . $user->id,
+            $userIdAttr => $user ? $userRule . '|size:' . $user->id : $userRule,
         ];
 
         // Only the broad ability lifts the restriction (managers)
-        if ($user->tokenCan(Abilities::CreateProduct)) {
+        if ($user?->tokenCan(Abilities::CreateProduct)) {
             $rules[$userIdAttr] = $userRule;
         }
 
@@ -61,5 +62,41 @@ class StoreProductRequest extends BaseProductRequest
                 'user' => $this->route('user')->getKey(),
             ]);
         }
+    }
+
+    /**
+     * Descriptions and examples that Scribe shows in the documentation.
+     */
+    public function bodyParameters(): array
+    {
+        $documentation = [
+            'data.attributes.product' => [
+                'description' => 'The product name.',
+                'example' => 'Wireless Headphones',
+            ],
+            'data.attributes.description' => [
+                'description' => 'The product description.',
+                'example' => 'Over-ear, noise-canceling headphones.',
+            ],
+            'data.attributes.status' => [
+                'description' => 'The status: A, C, H or X.',
+                'example' => 'A',
+            ],
+        ];
+
+        // The author id is in the body on /products, and in the URL on /users/{user}/products
+        if ($this->routeIs('products.store')) {
+            $documentation['data.relationships.user.data.id'] = [
+                'description' => 'The id of the author assigned to the product.',
+                'example' => 1,
+            ];
+        } else {
+            $documentation['user'] = [
+                'description' => 'The author id. It is taken from the URL, so repeat the {user} path value.',
+                'example' => 1,
+            ];
+        }
+
+        return $documentation;
     }
 }

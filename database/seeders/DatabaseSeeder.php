@@ -2,8 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\Product;
 use App\Models\User;
+use App\Models\Product;
+// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -20,5 +21,13 @@ class DatabaseSeeder extends Seeder
         Product::factory(100)
             ->recycle($users)
             ->create();
+
+        // A manager account used to test the manager abilities
+        User::create([
+            'email' => 'manager@manager.com',
+            'password' => bcrypt('password'),
+            'name' => 'The Manager',
+            'is_manager' => true,
+        ]);
     }
 }

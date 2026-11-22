@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Http\Filters\V1\QueryFilter;
+use App\Permissions\V1\Abilities;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,7 +16,7 @@ use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
  * A user who may have written products (an "author").
  * Fillable lists the columns that may be mass assigned with User::create([...]).
  */
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['name', 'email', 'password', 'is_manager'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Model implements JWTSubject
 {
@@ -31,6 +32,7 @@ class User extends Model implements JWTSubject
         'name',
         'email',
         'password',
+        'is_manager',
     ];
 
     /**
@@ -53,6 +55,8 @@ class User extends Model implements JWTSubject
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            // Returns true/false instead of 1/0
+            'is_manager' => 'boolean',
         ];
     }
 
@@ -73,12 +77,14 @@ class User extends Model implements JWTSubject
     }
 
     /**
-     * Extra data stored in the token payload. Empty for now;
-     * Step 20 adds the user's abilities here.
+     * Extra data stored in the token payload: the user's abilities.
+     * They are written into the JWT every time the user logs in.
      */
     public function getJWTCustomClaims()
     {
-        return [];
+        return [
+            'abilities' => Abilities::getAbilities($this),
+        ];
     }
 
     /**
@@ -87,5 +93,22 @@ class User extends Model implements JWTSubject
     public function scopeFilter(Builder $builder, QueryFilter $filters): Builder
     {
         return $filters->apply($builder);
+    }
+
+    /**
+     * Checks an ability stored in the current JWT, for example 'product:update'.
+     * Sanctum's own tokenCan() does not read JWT claims, so we implement it here.
+     */
+    public function tokenCan(string $ability): bool
+    {
+        try {
+            // Read the "abilities" claim of the token sent with this request
+            $abilities = auth('api')->payload()->get('abilities') ?? [];
+        } catch (\Throwable $e) {
+            // No token, or an unreadable one: no abilities
+            return false;
+        }
+
+        return in_array($ability, $abilities, true);
     }
 }

@@ -40,37 +40,48 @@ class ProductController extends APIController
 
     /**
      * POST /api/v1/products
-     * Validates the body with StoreProductRequest, then creates the product.
-     * Laravel answers 201 Created automatically for a newly created resource.
+     * Creates a product, but only if the policy allows this user to do so.
      */
     public function store(StoreProductRequest $request)
     {
-        // mappedAttributes() converts the nested JSON into database columns
-        return new ProductResource(
-            Product::create($request->mappedAttributes())
-        );
+        // Ask ProductPolicy::store() (checks the ability stored in the token)
+        if ($this->isAble('store', Product::class)) {
+            return new ProductResource(
+                Product::create($request->mappedAttributes())
+            );
+        }
+
+        return $this->notAuthorized('You are not authorized to create that resource.');
     }
 
     /**
      * DELETE /api/v1/products/{product}
-     * Deletes the product. A missing product never reaches this method: Laravel answers 404.
+     * Deletes the product, but only if the policy allows it.
      */
     public function destroy(Product $product)
     {
-        $product->delete();
+        if ($this->isAble('delete', $product)) {
+            $product->delete();
 
-        return $this->ok('Product successfully deleted');
+            return $this->ok('Product successfully deleted');
+        }
+
+        return $this->notAuthorized('You are not authorized to delete that resource.');
     }
 
     /**
      * PUT /api/v1/products/{product}
-     * Replaces the whole product: every field must be sent (see ReplaceProductRequest).
+     * Replaces the whole product, but only if the policy allows it.
      */
     public function replace(ReplaceProductRequest $request, Product $product)
     {
-        $product->update($request->mappedAttributes());
+        if ($this->isAble('replace', $product)) {
+            $product->update($request->mappedAttributes());
 
-        return new ProductResource($product);
+            return new ProductResource($product);
+        }
+
+        return $this->notAuthorized('You are not authorized to replace that resource.');
     }
 
     /**
@@ -79,7 +90,7 @@ class ProductController extends APIController
      */
     public function update(UpdateProductRequest $request, Product $product)
     {
-        // Ask ProductPolicy::update() (owner, or a user holding the broader ability)
+        // Ask ProductPolicy::update() (checks the ability stored in the token)
         if ($this->isAble('update', $product)) {
             $product->update($request->mappedAttributes());
 

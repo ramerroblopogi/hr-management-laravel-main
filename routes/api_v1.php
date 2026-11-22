@@ -32,5 +32,13 @@ Route::middleware('auth:api')->group(function () {
     Route::apiResource('authors', AuthorsController::class)->only(['index', 'show']);
 
     // Products of one user: GET /users/{user}/products
-    Route::apiResource('users.products', UserProductsController::class)->only(['index']);
+    Route::apiResource('users.products', UserProductsController::class)
+        ->only(['index', 'store', 'destroy'])
+        ->scoped();
+
+    // PUT and PATCH use our own method names, so they are registered by hand
+    Route::put('users/{user}/products/{product}', [UserProductsController::class, 'replace'])
+        ->scopeBindings();
+    Route::patch('users/{user}/products/{product}', [UserProductsController::class, 'update'])
+        ->scopeBindings();
 });

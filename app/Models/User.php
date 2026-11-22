@@ -7,7 +7,7 @@ use App\Permissions\V1\Abilities;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notifiable;
 use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
@@ -18,7 +18,7 @@ use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
  */
 #[Fillable(['name', 'email', 'password', 'is_manager'])]
 #[Hidden(['password', 'remember_token'])]
-class User extends Model implements JWTSubject
+class User extends Authenticatable implements JWTSubject
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
